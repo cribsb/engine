@@ -167,7 +167,7 @@ enum2str_generate(
    CLASS_NAME "uEnum2Str"
    NAMESPACE "e_engine"
    FUNC_NAME "toStr"
-   INCLUDES "defines.hpp" "vulkan/vulkan.h" "rObjectBase.hpp" "rShaderBase.hpp"
+   INCLUDES "defines.hpp" "vulkan.h" "rObjectBase.hpp" "rShaderBase.hpp"
    ENUMS
       # EEnginE
       "LOG_COLOR_TYPE" "LOG_PRINT_TYPE" "WINDOW_ATTRIBUTE" "WINDOW_TYPE" "ACTION" "MESH_TYPES" "E_BUTTON"

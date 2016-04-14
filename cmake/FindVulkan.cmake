@@ -24,11 +24,18 @@ find_path(
   /usr/local/include/vulkan
 )
 
+if( WIN32 )
+   set( VULKAN_LIBRARY_NAME "vulkan-1" )
+else( WIN32 )
+   set( VULKAN_LIBRARY_NAME "vulkan" )
+endif( WIN32 )
+
 find_library(
  VULKAN_LIBRARY
- NAMES vulkan
+ NAMES ${VULKAN_LIBRARY_NAME}
  PATHS
   ${VULKAN_PREFIX}/lib
+  ${VULKAN_PREFIX}/bin
   ${CMAKE_INSTALL_PREFIX}/lib
   /usr/lib
   /usr/local/lib
