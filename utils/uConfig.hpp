@@ -23,7 +23,7 @@
 #include "defines.hpp"
 #include <string>
 #include <vector>
-#include <vulkan/vulkan.h>
+#include <vulkan.h>
 
 namespace e_engine {
 

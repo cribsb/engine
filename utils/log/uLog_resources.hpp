@@ -26,6 +26,7 @@
 #include <condition_variable>
 #include <tuple>
 #include <map>
+#include <ctime>
 #include "uSignalSlot.hpp"
 #include "uLog_converters.hpp"
 #include "uConfig.hpp" // Only for internal::LOG_COLOR_TYPE and internal::LOG_PRINT_TYPE
