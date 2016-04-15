@@ -114,17 +114,17 @@ int iInit::eventLoop() {
 
 namespace windows_win32 {
 
-LRESULT CALLBACK iContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
+LRESULT CALLBACK iWindow::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
    if ( _uMsg == WM_NCCREATE ) {
       LPCREATESTRUCT lCreateStruct_win32 = reinterpret_cast<LPCREATESTRUCT>( _lParam );
       void *lCreateParam_win32           = lCreateStruct_win32->lpCreateParams;
-      iContext *this__                   = reinterpret_cast<iContext *>( lCreateParam_win32 );
+      iWindow *this__                    = reinterpret_cast<iWindow *>( lCreateParam_win32 );
 
       this__->vHWND_Window_win32 = _hwnd;
 
       SetWindowLongPtrW( _hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>( this__ ) );
       SetWindowLongPtrW(
-            _hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>( &iContext::staticWndProc ) );
+            _hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>( &iWindow::staticWndProc ) );
       iEventInfo _tempInfo( e_engine::internal::__iInit_Pointer_OBJ.get() );
       return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
    }
@@ -133,9 +133,9 @@ LRESULT CALLBACK iContext::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wPara
    return DefWindowProc( _hwnd, _uMsg, _wParam, _lParam );
 }
 
-LRESULT CALLBACK iContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
+LRESULT CALLBACK iWindow::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
    LONG_PTR lUserData_win32 = GetWindowLongPtrW( _hwnd, GWLP_USERDATA );
-   iContext *this__ = reinterpret_cast<iContext *>( lUserData_win32 );
+   iWindow *this__ = reinterpret_cast<iWindow *>( lUserData_win32 );
    iEventInfo _tempInfo( e_engine::internal::__iInit_Pointer_OBJ.get() );
 
    if ( !this__ || _hwnd != this__->vHWND_Window_win32 ) {
@@ -145,10 +145,10 @@ LRESULT CALLBACK iContext::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam
    return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
 }
 
-LRESULT CALLBACK iContext::actualWndProc( UINT _uMsg,
-                                          WPARAM _wParam,
-                                          LPARAM _lParam,
-                                          iEventInfo _tempInfo ) {
+LRESULT CALLBACK iWindow::actualWndProc( UINT _uMsg,
+                                         WPARAM _wParam,
+                                         LPARAM _lParam,
+                                         iEventInfo _tempInfo ) {
    unsigned int key_state = E_PRESSED;
 
 

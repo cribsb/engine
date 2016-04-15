@@ -212,7 +212,7 @@ int iInit::initDebug() {
  *
  * \par Linux
  *
- * More information iContext
+ * More information iWindow
  *
  * \returns  0 -- Success
  * \returns  1 -- Failed to init vulkan

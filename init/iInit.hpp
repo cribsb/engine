@@ -25,7 +25,7 @@
 
 #include <vulkan.h>
 
-#if UNIX_X11 || UNIX_WAYLAND
+#if UNIX_X11 || UNIX_WAYLAND || WINDOWS
 #include "iWindowBasic.hpp"
 #include "iMouse.hpp"
 #include "iInitSignals.hpp"
@@ -38,7 +38,7 @@
 #include "wayland/iWindow.hpp"
 
 #elif WINDOWS
-#include "windows/iContext.hpp"
+#include "windows/iWindow.hpp"
 
 #else
 #error "PLATFORM not supported"
@@ -57,7 +57,7 @@ typedef void ( *RENDER_FUNC )( iEventInfo info );
  * \class e_engine::iInit
  * \brief Init the <b>E Engine</b>
  *
- * This class handels the context with the iContext class. It
+ * This class handels the context with the iWindow class. It
  * sets the Crt-C handle function and starts the main and eventLoop
  * loop. This should be after uConfig the 1st class you generate
  * and you will do all window and curser config with it.
@@ -66,15 +66,10 @@ typedef void ( *RENDER_FUNC )( iEventInfo info );
  *
  * \note Cursor functions are not implemented yet
  *
- * \sa iContext uConfig e_iInit.cpp e_event.cpp
+ * \sa iWindow uConfig e_iInit.cpp e_event.cpp
  */
-#if UNIX_X11 || UNIX_WAYLAND
+
 class INIT_API iInit : public iInitSignals, public iMouse {
-#elif WINDOWS
-class INIT_API iInit : public windows_win32::iContext {
-#else
-#error "PLATFORM not supported"
-#endif
  public:
    SLOT vGrabControl_SLOT; //!< Slot for grab control \sa iInit::s_advancedGrabControl
 
@@ -96,14 +91,14 @@ class INIT_API iInit : public windows_win32::iContext {
       VkQueue queue;
       float priority;
       VkQueueFlags flags;
-      u_int32_t familyIndex;
-      u_int32_t index;
+      uint32_t familyIndex;
+      uint32_t index;
       bool surfaceSupport;
 
       Queue_vk( float _priority,
                 VkQueueFlags _flags,
-                u_int32_t _familyIndex,
-                u_int32_t _index,
+                uint32_t _familyIndex,
+                uint32_t _index,
                 bool _surfaceSupport )
           : priority( _priority ),
             flags( _flags ),
@@ -123,6 +118,8 @@ class INIT_API iInit : public windows_win32::iContext {
    unix_x11::iWindow vWindow;
 #elif UNIX_WAYLAND
    unix_wayland::iWindow vWindow;
+#elif WINDOWS
+   windows_win32::iWindow vWindow;
 #endif
 
    std::vector<std::string> vExtensionList;

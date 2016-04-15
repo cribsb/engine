@@ -36,7 +36,7 @@ namespace internal {}
  * This is the main, global configuration and information sructure.
  *
  * This structure stores all information the classes iInit and
- * iContext need.
+ * iWindow need.
  * The constructor fills all values with data,
  * which let the classes work without problems.
  *
@@ -46,7 +46,7 @@ namespace internal {}
  * instances of this
  * structure
  *
- * \sa iInit iContext GlobConf
+ * \sa iInit iWindow GlobConf
  */
 struct _uConfig {
 
@@ -100,28 +100,28 @@ struct _uConfig {
    //
 
    struct __uConfig_Window {
-      //! The width  ( will be updated when window changed ) \c CLASSES: \a iInit, \a iContext
+      //! The width  ( will be updated when window changed ) \c CLASSES: \a iInit, \a iWindow
       unsigned int width;
 
-      //! The height ( will be updated when window changed ) \c CLASSES: \a iInit, \a iContext
+      //! The height ( will be updated when window changed ) \c CLASSES: \a iInit, \a iWindow
       unsigned int height;
 
-      //! The min width of the window                        \c CLASSES: \a iInit, \a iContext
+      //! The min width of the window                        \c CLASSES: \a iInit, \a iWindow
       unsigned int minWidth;
 
-      //! The min height of the window                       \c CLASSES: \a iInit, \a iContext
+      //! The min height of the window                       \c CLASSES: \a iInit, \a iWindow
       unsigned int minHeight;
 
-      //! The posX   ( will be updated when window changed ) \c CLASSES: \a iInit, \a iContext
+      //! The posX   ( will be updated when window changed ) \c CLASSES: \a iInit, \a iWindow
       int posX;
 
-      //! The posY   ( will be updated when window changed ) \c CLASSES: \a iInit, \a iContext
+      //! The posY   ( will be updated when window changed ) \c CLASSES: \a iInit, \a iWindow
       int posY;
 
-      //! The mouse posX (will be updated when mouse moved)  \c CLASSES: \a iInit, \a iContext
+      //! The mouse posX (will be updated when mouse moved)  \c CLASSES: \a iInit, \a iWindow
       unsigned int mousePosX;
 
-      //! The mouse posY (will be updated when mouse moved)  \c CLASSES: \a iInit, \a iContext
+      //! The mouse posY (will be updated when mouse moved)  \c CLASSES: \a iInit, \a iWindow
       unsigned int mousePosY;
 
       //! Is the mouse in the window? (will be updated when mouse moved)
