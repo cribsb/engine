@@ -24,7 +24,7 @@
 #include "uLog.hpp"
 #include "uEnum2Str.hpp"
 
-#include <vulkan/vulkan.h>
+#include <vulkan.h>
 #include <string.h>
 
 #if D_LOG_VULKAN_INIT

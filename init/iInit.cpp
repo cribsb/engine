@@ -22,7 +22,7 @@
 #include "defines.hpp"
 
 #include <csignal>
-#include <vulkan/vulkan.h>
+#include <vulkan.h>
 #include <string.h>
 
 #include "iInit.hpp"

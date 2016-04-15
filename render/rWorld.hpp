@@ -25,7 +25,7 @@
 #include <unordered_map>
 #include <mutex>
 #include <condition_variable>
-#include <vulkan/vulkan.h>
+#include <vulkan.h>
 #include "rWorld_structs.hpp"
 #include "rRenderer.hpp"
 #include "uSignalSlot.hpp"

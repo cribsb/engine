@@ -23,7 +23,7 @@
 
 #include "defines.hpp"
 
-#include <vulkan/vulkan.h>
+#include <vulkan.h>
 
 #if UNIX_X11 || UNIX_WAYLAND
 #include "iWindowBasic.hpp"
