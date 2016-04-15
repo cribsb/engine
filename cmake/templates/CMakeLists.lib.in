@@ -16,9 +16,14 @@ set( @CM_CURRENT_LIB_INC@
 
 set( @CM_CURRENT_LIB_INC@ ${@CM_CURRENT_LIB_INC@} ${EXPORT_FILE} )
 
-add_library( engine_@CM_CURRENT_LIB_LC@_obj    OBJECT ${@CM_CURRENT_LIB_SRC@} ${@CM_CURRENT_LIB_INC@} )
-add_library( engine_@CM_CURRENT_LIB_LC@_shared SHARED $<TARGET_OBJECTS:engine_@CM_CURRENT_LIB_LC@_obj> )
-add_library( engine_@CM_CURRENT_LIB_LC@_static STATIC $<TARGET_OBJECTS:engine_@CM_CURRENT_LIB_LC@_obj> )
+if( WIN32 )
+   add_library( engine_@CM_CURRENT_LIB_LC@_shared SHARED ${@CM_CURRENT_LIB_SRC@} ${@CM_CURRENT_LIB_INC@} )
+   add_library( engine_@CM_CURRENT_LIB_LC@_static STATIC ${@CM_CURRENT_LIB_SRC@} ${@CM_CURRENT_LIB_INC@} )
+else( WIN32 )
+   add_library( engine_@CM_CURRENT_LIB_LC@_obj    OBJECT ${@CM_CURRENT_LIB_SRC@} ${@CM_CURRENT_LIB_INC@} )
+   add_library( engine_@CM_CURRENT_LIB_LC@_shared SHARED $<TARGET_OBJECTS:engine_@CM_CURRENT_LIB_LC@_obj> )
+   add_library( engine_@CM_CURRENT_LIB_LC@_static STATIC $<TARGET_OBJECTS:engine_@CM_CURRENT_LIB_LC@_obj> )
+endif( WIN32 )
 
 target_link_libraries( engine_@CM_CURRENT_LIB_LC@_shared ${ENGINE_LINK} @CM_CURRENT_LIB_DEP_SHARED@ )
 target_link_libraries( engine_@CM_CURRENT_LIB_LC@_static ${ENGINE_LINK} @CM_CURRENT_LIB_DEP_STATIC@ )
@@ -31,6 +36,8 @@ generate_export_header(
   STATIC_DEFINE        ENGINE_@CM_CURRENT_LIB_UC@_STATIC_DEFINE
   EXPORT_FILE_NAME     ${EXPORT_FILE}
 )
+
+set_target_properties( engine_@CM_CURRENT_LIB_LC@_static PROPERTIES COMPILE_DEFINITIONS ENGINE_@CM_CURRENT_LIB_UC@_STATIC_DEFINE )
 
 set_target_properties(
   engine_@CM_CURRENT_LIB_LC@_shared engine_@CM_CURRENT_LIB_LC@_static

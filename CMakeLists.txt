@@ -46,16 +46,6 @@ configure_file("${TEMPLATES_DIR}/cmake_uninstall.cmake.in"
 
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
-##############
-# Submodules #
-##############
-
-# assimp
-set( ASSIMP_BUILD_ASSIMP_TOOLS OFF )
-set( ASSIMP_BUILD_SAMPLES      OFF )
-set( ASSIMP_BUILD_TESTS        OFF )
-
-add_subdirectory( ${PROJECT_SOURCE_DIR}/dependencies/assimp )
 
 ###################################################
 # Load all modules in ${PROJECT_SOURCE_DIR}/cmake #
@@ -90,8 +80,21 @@ add_compiler( Clang
                RELEASE  "-O2" )
 
 add_compiler( MSVC
-               DEBUG   "/Od"
+               DEBUG   "/Od /bigobj"
                RELEASE "/O2" )
+
+
+##############
+# Submodules #
+##############
+
+# assimp
+set( ASSIMP_BUILD_ASSIMP_TOOLS OFF )
+set( ASSIMP_BUILD_SAMPLES      OFF )
+set( ASSIMP_BUILD_TESTS        OFF )
+
+add_subdirectory( ${PROJECT_SOURCE_DIR}/dependencies/assimp )
+
 
 ################
 # Dependencies #
