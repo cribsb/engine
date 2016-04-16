@@ -3,15 +3,23 @@ set( FILE_LIST
 @CM_ALL_SOURCE_FILES@
 )
 
+if( NOT DEFINED CLANG_FORMAT_EXE )
+   set( CLANG_FORMAT_EXE clang-format )
+
+   if( WIN32 )
+      set( CLANG_FORMAT_EXE "C:/Program Files/LLVM/bin/clang-format.exe" )
+   endif( WIN32 )
+endif( NOT DEFINED CLANG_FORMAT_EXE )
+
 execute_process(
-   COMMAND clang-format --version
+   COMMAND "${CLANG_FORMAT_EXE}" --version
    RESULT_VARIABLE FOUND
    OUTPUT_VARIABLE VER_RAW
 )
 
-if( NOT ${GIT_FOUND} MATCHES 0 )
+if( NOT ${FOUND} MATCHES 0 )
    message( FATAL_ERROR "unable to find clang-format" )
-endif( NOT ${GIT_FOUND} MATCHES 0 )
+endif( NOT ${FOUND} MATCHES 0 )
 
 string( REGEX MATCH "[0-9]+\\.[0-9]+\\.[0-9]+" VER "${VER_RAW}" )
 
@@ -25,7 +33,7 @@ set( NUM_MOD 0 )
 
 foreach( I IN LISTS FILE_LIST )
    file( SHA256 "${I}" HASH_1 )
-   execute_process( COMMAND clang-format -i "${I}" )
+   execute_process( COMMAND "${CLANG_FORMAT_EXE}" -i "${I}" )
    file( SHA256 "${I}" HASH_2 )
 
    if( NOT HASH_1 STREQUAL HASH_2 )

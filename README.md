@@ -61,6 +61,13 @@ Now install CMake and GIT.
 You need at least Visual Studio [2015](https://www.visualstudio.com/en-us/downloads/visual-studio-2015-downloads-vs.aspx) to compile the project.
 Using Mingw or Clang may also work.
 
+
+### Installing clang-format on Windows
+
+clang-format is used to format the the entire EEnginE source code. It can be executed with the CMake format target.
+
+Dowload clang 3.7.1 from [here](http://llvm.org/releases/download.html) and install it.
+
 # CMake options
 
 ## ENGINE
