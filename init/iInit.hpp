@@ -25,11 +25,9 @@
 
 #include <vulkan.h>
 
-#if UNIX_X11 || UNIX_WAYLAND || WINDOWS
 #include "iWindowBasic.hpp"
 #include "iMouse.hpp"
 #include "iInitSignals.hpp"
-#endif
 
 #if UNIX_X11
 #include "x11/iWindow.hpp"
