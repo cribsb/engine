@@ -37,7 +37,7 @@ foreach( I IN LISTS FILE_LIST )
    file( SHA256 "${I}" HASH_2 )
 
    if( NOT HASH_1 STREQUAL HASH_2 )
-      message( STATUS "Formated ${I}" )
+      message( STATUS "Formatted ${I}" )
       math( EXPR NUM_MOD "${NUM_MOD} + 1" )
    endif( NOT HASH_1 STREQUAL HASH_2 )
 endforeach( I IN LISTS FILE_LIST )

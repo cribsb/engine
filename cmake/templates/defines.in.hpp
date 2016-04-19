@@ -128,15 +128,16 @@ enum WINDOW_ATTRIBUTE {
    STICKY,             //!< Sets the window sticky
    MAXIMIZED_VERT,     //!< Maximize the window in the vert. direction
    MAXIMIZED_HORZ,     //!< Maximize the window in the horz. direction
-   SHADED,             //!< Should add some shadow effects
-   SKIP_TASKBAR,       //!< Removes the windoe from the taskbar
+   MINIMIZED,          //!< Minimize the window
+   SHADED,             //!< Add some shadow effects
+   SKIP_TASKBAR,       //!< Removes the window from the taskbar
    SKIP_PAGER,         //!< Removes the window from the pager
-   HIDDEN,             //!< This should hide it somehow
-   FULLSCREEN,         //!< This should make the window fullscreen
-   ABOVE,              //!< This should set the window above all other windows (always in the foreground)
-   BELOW,              //!< This should set the window below all other windows (always in the background)
-   DEMANDS_ATTENTION,  //!< Tells the window manager to make the window borders blink or something like that -- stops usually when the user clicks in the window
-   FOCUSED,            //!< Should set the window focused
+   HIDDEN,             //!< Hides the window
+   FULLSCREEN,         //!< Make the window fullscreen
+   ABOVE,              //!< Set the window above all other windows (always in the foreground)
+   BELOW,              //!< Set the window below all other windows (always in the background)
+   DEMANDS_ATTENTION,  //!< Request attention of the user
+   FOCUSED,            //!< Focus the window
    NONE                //!< Change nothing
 };
 

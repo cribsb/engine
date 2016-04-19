@@ -58,7 +58,8 @@ class INIT_API iWindowBasic {
                               WINDOW_ATTRIBUTE _type2 = NONE ) = 0;
 
    virtual void fullScreen( ACTION _action, bool _allMonitors = false ) = 0;
-   virtual void maximize( ACTION _action ) = 0;
+   void maximize() { setAttribute( C_ADD, MAXIMIZED_HORZ, MAXIMIZED_VERT ); }
+   void minimize() { setAttribute( C_REMOVE, MINIMIZED ); }
    virtual void setDecoration( ACTION _action ) = 0;
 
    virtual bool grabMouse() = 0;

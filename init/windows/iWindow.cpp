@@ -26,9 +26,13 @@
  * limitations under the License.
  */
 
+#define VK_USE_PLATFORM_WIN32_KHR ;
+
 #include <windows.h>
 #include "iWindow.hpp"
+#include "iInit.hpp"
 #include "uLog.hpp"
+#include "uEnum2Str.hpp"
 
 namespace {
 
@@ -51,12 +55,16 @@ eWindowClassRegister CLASS_REGISTER;
 
 LRESULT CALLBACK __WndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
 
-iWindow::iWindow() {
+iWindow::iWindow( iInit *_init ) {
    vWindowsCallbacksError = false;
    vHasWindow             = false;
 
    vIsCursorHidden = false;
    vIsMouseGrabbed = false;
+
+   vPointers         = std::make_unique<ClassPointers>();
+   vPointers->window = this;
+   vPointers->init   = _init;
 }
 
 /*!
@@ -70,6 +78,7 @@ iWindow::iWindow() {
 int iWindow::createWindow() {
    if ( vHasWindow )
       return 1;
+
 
    vHWND_Window_win32 = 0;
    vInstance_win32    = 0;
@@ -100,9 +109,9 @@ int iWindow::createWindow() {
    if ( !internal::CLASS_REGISTER.getC2() ) {
       vWindowClass_win32.style =
             CS_OWNDC | CS_HREDRAW | CS_VREDRAW; // We want a unique DC and redraw on window changes
-      vWindowClass_win32.lpfnWndProc   = &iWindow::initialWndProc;
+      vWindowClass_win32.lpfnWndProc   = &iInit::initialWndProc;
       vWindowClass_win32.cbClsExtra    = 0; // We do not need this
-      vWindowClass_win32.cbWndExtra    = sizeof( iWindow * );
+      vWindowClass_win32.cbWndExtra    = sizeof( ClassPointers );
       vWindowClass_win32.hInstance     = vInstance_win32;
       vWindowClass_win32.hIcon         = NULL; // We dont have a special icon
       vWindowClass_win32.hCursor       = LoadCursor( NULL, IDC_ARROW ); // Take the default mouse cursor
@@ -165,7 +174,7 @@ int iWindow::createWindow() {
          NULL,                                          // No parent window
          NULL,                                          // No menu
          vInstance_win32,                               // The instance
-         this                                           // We dont want spacial window creation
+         vPointers.get()                                // We dont want special window creation
          );
 
    /*!
@@ -248,6 +257,10 @@ bool iWindow::setWindowState( UINT _flags, HWND _pos ) {
    return SetWindowPos( vHWND_Window_win32, _pos, 0, 0, 10, 10, _flags | SWP_NOSIZE | SWP_NOMOVE );
 }
 
+
+void iWindow::setWindowType( WINDOW_TYPE _type ) {}
+
+void iWindow::setWindowNames( std::string _windowName, std::string _iconName ) {}
 
 /*!
  * \brief Changes the state of the window
@@ -441,6 +454,8 @@ void iWindow::setDecoration( ACTION _action ) {
  * \brief Sets or removes fullscreen
  * \note You need to restart to apply the changes
  * \param[in] _action What to do
+ *
+ * \TODO Implement borderless
  */
 void iWindow::fullScreen( ACTION _action, bool ) {
    bool lGlobConfOld = GlobConf.win.fullscreen;
@@ -462,7 +477,6 @@ void iWindow::fullScreen( ACTION _action, bool ) {
             " ) needs window restart!" );
    }
 }
-
 
 
 /*!
@@ -585,6 +599,31 @@ void iWindow::showMouseCursor() {
  * \returns true if the cursor is hidden
  */
 bool iWindow::getIsCursorHidden() const { return vIsCursorHidden; }
+
+bool iWindow::getIsWindowCreated() const { return vHasWindow; }
+
+VkSurfaceKHR iWindow::getVulkanSurface( VkInstance _instance ) {
+   if ( !vHasWindow ) {
+      eLOG( "Cannot create vulkan surface when there is no window." );
+      return nullptr;
+   }
+   VkSurfaceKHR lSurface = nullptr;
+   VkWin32SurfaceCreateInfoKHR lCreateInfo;
+
+   lCreateInfo.sType     = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+   lCreateInfo.pNext     = nullptr;
+   lCreateInfo.flags     = 0;
+   lCreateInfo.hinstance = vInstance_win32;
+   lCreateInfo.hwnd      = vHWND_Window_win32;
+
+   VkResult lResult = vkCreateWin32SurfaceKHR( _instance, &lCreateInfo, nullptr, &lSurface );
+
+   if ( lResult != VK_SUCCESS ) {
+      eLOG( "An error occurred in 'vkCreateWin32SurfaceKHR': ", uEnum2Str::toStr( lResult ) );
+   }
+
+   return lSurface;
+}
 
 // Temp wndProc
 LRESULT CALLBACK __WndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {

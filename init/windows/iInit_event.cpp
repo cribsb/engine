@@ -36,14 +36,10 @@ int iInit::eventLoop() {
 
    iLOG( "Event thread started" );
 
-   vWindowsDestroy_B   = false;
-   vWindowsNCDestrox_B = false;
-
    {
       // Make sure lLockWindow_BT will be destroyed
       std::lock_guard<std::mutex> lLockWindow_BT( vCreateWindowMutex_BT );
-      vCreateWindowReturn_I = createContext();
-      makeNOContextCurrent();
+      vCreateWindowReturn_I = vWindow.createWindow();
 
       // Context created; continue with init();
       vCreateWindowCondition_BT.notify_one();
@@ -62,24 +58,12 @@ int iInit::eventLoop() {
       }
       dLOG( "Event thread continue" );
 
-      if ( !getHaveContext() )
-         break;
-
       vEventLoopHasFinished_B = false;
       iLOG( "Event loop started" );
 
-      //    while ( ( vMainLoopRunning_B && !vWindowRecreate_B ) || ( vMainLoopRunning_B || (
-      //    vWindowRecreate_B && ! ( vWindowsDestroy_B && vWindowsNCDestrox_B ) ) ) ) {
-      while ( !( vWindowsDestroy_B && vWindowsNCDestrox_B ) && vMainLoopRunning_B ) {
-         if ( vEventLoopPaused_B ) {
-            std::unique_lock<std::mutex> lLock_BT( vEventLoopMutex_BT );
-            vEventLoopISPaused_B = true;
-            while ( vEventLoopPaused_B )
-               vEventLoopWait_BT.wait( lLock_BT );
-            vEventLoopISPaused_B = false;
-         }
+      while ( vWindow.getIsWindowCreated() && vMainLoopRunning_B ) {
 
-         while ( PeekMessageW( &msg, getHWND_win32(), 0, 0, PM_REMOVE ) ) {
+         while ( PeekMessageW( &msg, vWindow.getHWND_win32(), 0, 0, PM_REMOVE ) ) {
             TranslateMessage( &msg );
             DispatchMessageW( &msg );
          }
@@ -95,10 +79,10 @@ int iInit::eventLoop() {
       vStopEventLoopCondition.notify_one();
    }
 
-   DestroyWindow( getHWND_win32() );
+   DestroyWindow( vWindow.getHWND_win32() );
 
    // Proccess the last messages
-   while ( PeekMessageW( &msg, getHWND_win32(), 0, 0, PM_REMOVE ) ) {
+   while ( PeekMessageW( &msg, vWindow.getHWND_win32(), 0, 0, PM_REMOVE ) ) {
       TranslateMessage( &msg );
       DispatchMessageW( &msg );
    }
@@ -112,43 +96,46 @@ int iInit::eventLoop() {
    return 1;
 }
 
-namespace windows_win32 {
-
-LRESULT CALLBACK iWindow::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
+LRESULT CALLBACK iInit::initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
    if ( _uMsg == WM_NCCREATE ) {
+      windows_win32::ClassPointers pointers;
       LPCREATESTRUCT lCreateStruct_win32 = reinterpret_cast<LPCREATESTRUCT>( _lParam );
       void *lCreateParam_win32           = lCreateStruct_win32->lpCreateParams;
-      iWindow *this__                    = reinterpret_cast<iWindow *>( lCreateParam_win32 );
 
-      this__->vHWND_Window_win32 = _hwnd;
+      memcpy( &pointers, lCreateParam_win32, sizeof( windows_win32::ClassPointers ) );
 
-      SetWindowLongPtrW( _hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>( this__ ) );
-      SetWindowLongPtrW(
-            _hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>( &iWindow::staticWndProc ) );
+      pointers.window->vHWND_Window_win32 = _hwnd;
+
+      SetWindowLongPtrW( _hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>( pointers.window ) );
+      SetWindowLongPtrW( _hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>( &staticWndProc ) );
       iEventInfo _tempInfo( e_engine::internal::__iInit_Pointer_OBJ.get() );
-      return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
+      return pointers.init->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
    }
    // if it isn't WM_NCCREATE, do something useful and wait until
    //   WM_NCCREATE is sent
    return DefWindowProc( _hwnd, _uMsg, _wParam, _lParam );
 }
 
-LRESULT CALLBACK iWindow::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
+LRESULT CALLBACK iInit::staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam ) {
+   windows_win32::ClassPointers pointers;
    LONG_PTR lUserData_win32 = GetWindowLongPtrW( _hwnd, GWLP_USERDATA );
-   iWindow *this__ = reinterpret_cast<iWindow *>( lUserData_win32 );
    iEventInfo _tempInfo( e_engine::internal::__iInit_Pointer_OBJ.get() );
 
-   if ( !this__ || _hwnd != this__->vHWND_Window_win32 ) {
+   memcpy( &pointers,
+           reinterpret_cast<void *>( lUserData_win32 ),
+           sizeof( windows_win32::ClassPointers ) );
+
+   if ( !pointers.window || _hwnd != pointers.window->vHWND_Window_win32 ) {
       eLOG( "Bad Windows callback error" );
    }
 
-   return this__->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
+   return pointers.init->actualWndProc( _uMsg, _wParam, _lParam, _tempInfo );
 }
 
-LRESULT CALLBACK iWindow::actualWndProc( UINT _uMsg,
-                                         WPARAM _wParam,
-                                         LPARAM _lParam,
-                                         iEventInfo _tempInfo ) {
+LRESULT CALLBACK iInit::actualWndProc( UINT _uMsg,
+                                       WPARAM _wParam,
+                                       LPARAM _lParam,
+                                       iEventInfo _tempInfo ) {
    unsigned int key_state = E_PRESSED;
 
 
@@ -298,7 +285,7 @@ LRESULT CALLBACK iWindow::actualWndProc( UINT _uMsg,
       case WM_KEYDOWN:
          _tempInfo.type       = E_EVENT_KEY;
          _tempInfo.eKey.state = key_state;
-         _tempInfo.eKey.key   = processWindowsKeyInput( _wParam, key_state );
+         _tempInfo.eKey.key   = vWindow.processWindowsKeyInput( _wParam, key_state );
 
          if ( _tempInfo.eKey.key != 0 ) // Dont send the signal if a character was found
             vKey_SIG.send( _tempInfo );
@@ -306,21 +293,13 @@ LRESULT CALLBACK iWindow::actualWndProc( UINT _uMsg,
          // MapVirtualKey(_wParam, MAPVK_VK_TO_CHAR)
          // The above returns 0 when a function key is pressed, may be useful
          return 0;
-      case WM_DESTROY:
-         iLOG( "Window Destroyed WM_DESTROY" );
-         vWindowsDestroy_B = true;
-         break;
-      case WM_NCDESTROY:
-         iLOG( "Window Destroyed WM_NCDESTROY" );
-         vWindowsNCDestrox_B = true;
-         break;
+      case WM_DESTROY: iLOG( "Window Destroyed WM_DESTROY" ); break;
+      case WM_NCDESTROY: iLOG( "Window Destroyed WM_NCDESTROY" ); break;
       default: break;
    }
 
-   return DefWindowProc( vHWND_Window_win32, _uMsg, _wParam, _lParam );
+   return DefWindowProc( vWindow.getHWND_win32(), _uMsg, _wParam, _lParam );
 }
-
-} // windows_win32
 
 } // e_engine
 

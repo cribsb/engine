@@ -170,6 +170,15 @@ class INIT_API iInit : public iInitSignals, public iMouse {
    std::condition_variable vStopEventLoopCondition;
 
    bool vContinueWithEventLoop_B;
+
+   static LRESULT CALLBACK initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
+   static LRESULT CALLBACK staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
+   LRESULT CALLBACK actualWndProc( UINT _uMsg,
+                                   WPARAM _wParam,
+                                   LPARAM _lParam,
+                                   iEventInfo _tempInfo );
+
+   friend class windows_win32::iWindow;
 #endif
 
    PhysicalDevice_vk *chooseDevice();

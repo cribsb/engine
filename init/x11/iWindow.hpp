@@ -145,7 +145,6 @@ class INIT_API iWindow : public iRandR, public iKeyboard, public iWindowBasic {
    virtual void fullScreen( ACTION _action, bool _allMonitors = false );
    void fullScreenMultiMonitor();
    void setFullScreenMonitor( iDisplays &_disp );
-   virtual void maximize( ACTION _action );
    virtual void setDecoration( ACTION _action );
 
    virtual bool grabMouse();

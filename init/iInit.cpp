@@ -53,12 +53,16 @@ PFN_vkDestroyDebugReportCallbackEXT f_vkDestroyDebugReportCallbackEXT = nullptr;
 
 void iInit::_setThisForHandluSignal() {
    if ( !internal::__iInit_Pointer_OBJ.set( this ) ) {
-      eLOG( "There can only be ONE iInit Class" );
+      eLOG( "There can only be ONE iInit Class." );
       throw std::string( "There can only be ONE iInit Class" );
    }
 }
 
+#if WINDOWS
+iInit::iInit() : vGrabControl_SLOT( &iInit::s_advancedGrabControl, this ), vWindow( this ) {
+#else
 iInit::iInit() : vGrabControl_SLOT( &iInit::s_advancedGrabControl, this ) {
+#endif
    vExtensionsToUse.emplace_back( VK_EXT_DEBUG_REPORT_EXTENSION_NAME );
    vExtensionsToUse.emplace_back( VK_KHR_SURFACE_EXTENSION_NAME );
    vExtensionsToUse.emplace_back( E_VK_KHR_SYSTEM_SURVACE_EXTENSION_NAME );
@@ -472,10 +476,10 @@ void iInit::closeWindow() {
       vStartEventCondition_BT.notify_one();
    }
 
-   if ( vEventLoop_BT.joinable() && _waitUntilClosed )
+   if ( vEventLoop_BT.joinable() )
       vEventLoop_BT.join();
 
-   iLOG( "Done close window" );
+   iLOG( "Done closing window" );
 
    vContinueWithEventLoop_B = false;
 #endif

@@ -27,6 +27,8 @@
 
 #include "defines.hpp"
 
+#include <memory>
+
 #include "iEventInfo.hpp"
 #include "iKeyboard.hpp"
 #include "iRandR.hpp"
@@ -34,7 +36,16 @@
 
 namespace e_engine {
 
+class iInit;
+
 namespace windows_win32 {
+
+class iWindow;
+
+struct ClassPointers {
+   iInit *init;
+   iWindow *window;
+};
 
 
 class INIT_API iWindow : public iKeyboard, public iRandR, public iWindowBasic {
@@ -45,12 +56,7 @@ class INIT_API iWindow : public iKeyboard, public iRandR, public iWindowBasic {
    RECT vWindowRect_win32;
    LPCWSTR vClassName_win32;
 
-   static LRESULT CALLBACK initialWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
-   static LRESULT CALLBACK staticWndProc( HWND _hwnd, UINT _uMsg, WPARAM _wParam, LPARAM _lParam );
-   LRESULT CALLBACK actualWndProc( UINT _uMsg,
-                                   WPARAM _wParam,
-                                   LPARAM _lParam,
-                                   iEventInfo _tempInfo );
+   std::unique_ptr<ClassPointers> vPointers;
 
    bool vWindowsCallbacksError;
 
@@ -71,29 +77,31 @@ class INIT_API iWindow : public iKeyboard, public iRandR, public iWindowBasic {
    HWND getHWND_win32() { return vHWND_Window_win32; }
 
  public:
-   iWindow();
+   iWindow() = delete;
+   iWindow( iInit *_init );
    virtual ~iWindow() {
       if ( vHasWindow )
          destroyWindow();
    }
 
-   int createWindow() override;
+   friend class iInit;
 
-   void fullScreen( ACTION _action, bool _allMonitors = false ) override;
+   int createWindow() override;
    void destroyWindow() override;
 
-   void setAttribute( ACTION _action,
-                      WINDOW_ATTRIBUTE _type1,
-                      WINDOW_ATTRIBUTE _type2 = NONE ) override;
-
-
-   int setFullScreenMonitor( iDisplays & ) { return 0; }
-   void setDecoration( ACTION _action ) override;
    void changeWindowConfig( unsigned int _width,
                             unsigned int _height,
                             int _posX,
                             int _posY ) override;
-   bool fullScreenMultiMonitor() { return false; }
+
+   void setWindowType( WINDOW_TYPE _type ) override;
+   void setWindowNames( std::string _windowName, std::string _iconName = "<NONE>" ) override;
+   void setAttribute( ACTION _action,
+                      WINDOW_ATTRIBUTE _type1,
+                      WINDOW_ATTRIBUTE _type2 = NONE ) override;
+
+   void fullScreen( ACTION _action, bool _allMonitors = false ) override;
+   void setDecoration( ACTION _action ) override;
 
    bool grabMouse() override;
    void freeMouse() override;
@@ -104,8 +112,9 @@ class INIT_API iWindow : public iKeyboard, public iRandR, public iWindowBasic {
    void hideMouseCursor() override;
    void showMouseCursor() override;
    bool getIsCursorHidden() const override;
+   bool getIsWindowCreated() const override;
 
-   //       unsigned getVertexArrayOpenGL() { return vVertexArray_OGL; }
+   VkSurfaceKHR getVulkanSurface( VkInstance _instance ) override;
 };
 
 /*!

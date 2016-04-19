@@ -360,14 +360,6 @@ void iWindow::fullScreen( e_engine::ACTION _action, bool _allMonitors ) {
       fullScreenMultiMonitor();
 }
 
-/*!
- * \brief Change the maximize mode
- * \param _action Can be ACTION::C_REMOVE, ACTION::C_ADD or ACTION::C_TOGGLE
- */
-void iWindow::maximize( e_engine::ACTION _action ) {
-   setAttribute( _action, MAXIMIZED_HORZ, MAXIMIZED_VERT );
-}
-
 
 /*!
  * \brief Sends an NET_WM_STATE event to the X-Server
